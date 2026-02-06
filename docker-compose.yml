@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  batfish:
+    image: batfish/allinone:latest
+    container_name: batfish
+    ports:
+      - "9997:9997"  # Batfish service port
+      - "9996:9996"  # Coordinator service port
+    volumes:
+      - batfish-data:/data
+    networks:
+      - batfish-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9996/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  batfish-mcp:
+    # For local builds, use: batfish-mcp:latest
+    # For GHCR, use: ghcr.io/${GITHUB_REPOSITORY:-yourusername/batfish-mcp-container}:latest
+    image: batfish-mcp:latest
+    container_name: batfish-mcp
+    ports:
+      - "3009:3009"  # MCP server port
+    environment:
+      - BATFISH_HOST=batfish
+      - BATFISH_PORT=9996
+      - DISABLE_JWT_AUTH=${DISABLE_JWT_AUTH:-true}
+      - AZURE_AD_TENANT_ID=${AZURE_AD_TENANT_ID:-}
+      - AZURE_AD_CLIENT_ID=${AZURE_AD_CLIENT_ID:-}
+      - ENABLE_AUTH_LOGGING=${ENABLE_AUTH_LOGGING:-false}
+      - PORT=3009
+      - HOST=0.0.0.0
+      - TRANSPORT=http
+      - PYTHONUNBUFFERED=1
+    networks:
+      - batfish-network
+    depends_on:
+      batfish:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  batfish-network:
+    driver: bridge
+
+volumes:
+  batfish-data:
+    driver: local
