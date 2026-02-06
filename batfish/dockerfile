@@ -1,0 +1,52 @@
+# ---- build ----
+FROM python:3.11-slim AS build
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements file
+COPY batfish/requirements.txt ./requirements.txt
+
+# Install dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY batfish ./batfish
+COPY middleware ./middleware
+# ---- runtime ----
+FROM python:3.11-slim
+WORKDIR /app
+
+# Install runtime dependencies (curl for healthchecks, git for github_load_snapshot tool)
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy installed packages and application
+COPY --from=build /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=build /usr/local/bin /usr/local/bin
+COPY --from=build /app/batfish ./batfish
+COPY --from=build /app/middleware ./middleware
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash app
+USER app
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PORT=3009
+ENV HOST=0.0.0.0
+ENV TRANSPORT=http
+ENV PYTHONPATH=/app
+
+# Expose port
+EXPOSE 3009
+
+# Run the application
+CMD ["python", "-m", "batfish.server"]

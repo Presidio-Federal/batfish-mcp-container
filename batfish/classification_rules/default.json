@@ -1,0 +1,447 @@
+{
+  "version": "1.0",
+  "name": "Default OT/IT Device Classification Rules",
+  "description": "Standard classification rules for industrial and enterprise networks",
+  "author": "HAI Infrastructure Team",
+  "last_updated": "2024-01-01",
+  "scoring_weights": {
+    "vendor_match": 3,
+    "oui_vendor_match": 4,
+    "name_pattern_match": 5,
+    "config_format_match": 2,
+    "vlan_indicator_match": 3
+  },
+  "confidence_thresholds": {
+    "high": 7,
+    "medium": 3,
+    "low": 0
+  },
+  "device_types": {
+    "plc": {
+      "display_name": "Programmable Logic Controller (PLC)",
+      "category": "ot_control",
+      "purdue_level": "Level_0",
+      "vendors": [
+        "siemens",
+        "allen-bradley",
+        "ab",
+        "rockwell",
+        "schneider",
+        "modicon",
+        "ge",
+        "omron",
+        "mitsubishi",
+        "honeywell",
+        "yokogawa"
+      ],
+      "name_patterns": [
+        "plc",
+        "controller",
+        "s7-",
+        "controllogix",
+        "compactlogix",
+        "device-[0-9a-f]{12}"
+      ],
+      "config_formats": [],
+      "vlan_indicators": [
+        "ot",
+        "process",
+        "control",
+        "scada",
+        "field",
+        "400",
+        "100",
+        "200"
+      ],
+      "oui_vendors": [
+        "honeywell",
+        "siemens",
+        "schneider",
+        "rockwell",
+        "ab",
+        "omron",
+        "yokogawa",
+        "ge"
+      ],
+      "subnet_patterns": [
+        "10\\.42\\.(100|200|400)\\.",
+        "192\\.168\\.100\\."
+      ]
+    },
+    "scada": {
+      "display_name": "SCADA Server / HMI",
+      "category": "ot_supervisory",
+      "purdue_level": "Level_1",
+      "vendors": [
+        "ge",
+        "siemens",
+        "schneider",
+        "abb",
+        "emerson",
+        "wonderware",
+        "iconics"
+      ],
+      "name_patterns": [
+        "scada",
+        "hmi",
+        "historian",
+        "wonderware",
+        "ignition",
+        "iconics",
+        "opc"
+      ],
+      "config_formats": [],
+      "vlan_indicators": [
+        "ot",
+        "scada",
+        "control",
+        "120",
+        "150"
+      ],
+      "oui_vendors": [],
+      "subnet_patterns": []
+    },
+    "rtu": {
+      "display_name": "Remote Terminal Unit (RTU)",
+      "category": "ot_control",
+      "purdue_level": "Level_0",
+      "vendors": [
+        "ge",
+        "siemens",
+        "schweitzer",
+        "sel"
+      ],
+      "name_patterns": [
+        "rtu",
+        "remote.*terminal",
+        "sel-"
+      ],
+      "config_formats": [],
+      "vlan_indicators": [
+        "ot",
+        "field",
+        "remote"
+      ],
+      "oui_vendors": [],
+      "subnet_patterns": []
+    },
+    "ied": {
+      "display_name": "Intelligent Electronic Device (IED)",
+      "category": "ot_control",
+      "purdue_level": "Level_0",
+      "vendors": [
+        "schweitzer",
+        "sel",
+        "ge",
+        "siemens",
+        "abb"
+      ],
+      "name_patterns": [
+        "ied",
+        "relay",
+        "sel-\\d+",
+        "protection"
+      ],
+      "config_formats": [],
+      "vlan_indicators": [
+        "ot",
+        "substation",
+        "protection"
+      ],
+      "oui_vendors": [],
+      "subnet_patterns": []
+    },
+    "switch": {
+      "display_name": "Network Switch",
+      "category": "infrastructure",
+      "purdue_level": null,
+      "vendors": [
+        "cisco",
+        "juniper",
+        "arista",
+        "hp",
+        "dell",
+        "brocade",
+        "extreme"
+      ],
+      "name_patterns": [
+        "switch",
+        "sw-",
+        "sw\\d+",
+        "-sw",
+        "catalyst",
+        "nexus",
+        "-cs\\d+"
+      ],
+      "config_formats": [
+        "cisco_ios",
+        "cisco_nxos",
+        "juniper",
+        "arista"
+      ],
+      "vlan_indicators": [],
+      "oui_vendors": [],
+      "subnet_patterns": []
+    },
+    "router": {
+      "display_name": "Network Router",
+      "category": "infrastructure",
+      "purdue_level": null,
+      "vendors": [
+        "cisco",
+        "juniper",
+        "palo alto"
+      ],
+      "name_patterns": [
+        "router",
+        "rtr",
+        "edge",
+        "border",
+        "gateway"
+      ],
+      "config_formats": [
+        "cisco_ios",
+        "juniper"
+      ],
+      "vlan_indicators": [],
+      "oui_vendors": [],
+      "subnet_patterns": []
+    },
+    "firewall": {
+      "display_name": "Firewall",
+      "category": "security",
+      "purdue_level": null,
+      "vendors": [
+        "palo alto",
+        "fortinet",
+        "checkpoint",
+        "cisco"
+      ],
+      "name_patterns": [
+        "firewall",
+        "fw-",
+        "fw\\d+",
+        "palo",
+        "fortigate",
+        "asa"
+      ],
+      "config_formats": [
+        "palo_alto",
+        "fortinet",
+        "checkpoint"
+      ],
+      "vlan_indicators": [],
+      "oui_vendors": [],
+      "subnet_patterns": []
+    },
+    "workstation": {
+      "display_name": "Workstation / Desktop",
+      "category": "it_endpoint",
+      "purdue_level": "Level_3",
+      "vendors": [
+        "hp",
+        "dell",
+        "lenovo",
+        "microsoft",
+        "vmware",
+        "apple",
+        "asus",
+        "acer"
+      ],
+      "name_patterns": [
+        "workstation",
+        "desktop",
+        "ws-",
+        "pc-",
+        "laptop",
+        "wks"
+      ],
+      "config_formats": [],
+      "vlan_indicators": [
+        "corp",
+        "office",
+        "user",
+        "desktop",
+        "1",
+        "10"
+      ],
+      "oui_vendors": [
+        "hp",
+        "dell",
+        "lenovo",
+        "apple",
+        "microsoft",
+        "intel"
+      ],
+      "subnet_patterns": []
+    },
+    "server": {
+      "display_name": "Server",
+      "category": "it_server",
+      "purdue_level": "Level_3",
+      "vendors": [
+        "hp",
+        "dell",
+        "vmware",
+        "microsoft",
+        "linux",
+        "supermicro"
+      ],
+      "name_patterns": [
+        "server",
+        "srv-",
+        "srvr",
+        "host",
+        "esxi",
+        "vcenter"
+      ],
+      "config_formats": [],
+      "vlan_indicators": [
+        "server",
+        "dmz",
+        "data"
+      ],
+      "oui_vendors": [],
+      "subnet_patterns": []
+    },
+    "phone": {
+      "display_name": "VoIP Phone",
+      "category": "it_endpoint",
+      "purdue_level": "Level_4",
+      "vendors": [
+        "cisco",
+        "polycom",
+        "yealink",
+        "avaya",
+        "mitel",
+        "grandstream"
+      ],
+      "name_patterns": [
+        "phone",
+        "voip",
+        "sep[0-9a-f]{12}",
+        "polycom",
+        "yealink",
+        "avaya",
+        "sip-"
+      ],
+      "config_formats": [],
+      "vlan_indicators": [
+        "voice",
+        "voip",
+        "phone",
+        "telephony"
+      ],
+      "oui_vendors": [
+        "cisco",
+        "polycom",
+        "yealink",
+        "avaya"
+      ],
+      "subnet_patterns": []
+    },
+    "printer": {
+      "display_name": "Network Printer",
+      "category": "it_endpoint",
+      "purdue_level": "Level_4",
+      "vendors": [
+        "hp",
+        "canon",
+        "xerox",
+        "brother",
+        "epson",
+        "ricoh"
+      ],
+      "name_patterns": [
+        "printer",
+        "print",
+        "mfp",
+        "copier"
+      ],
+      "config_formats": [],
+      "vlan_indicators": [
+        "print"
+      ],
+      "oui_vendors": [
+        "hp",
+        "canon",
+        "xerox",
+        "brother",
+        "epson"
+      ],
+      "subnet_patterns": []
+    },
+    "sensor": {
+      "display_name": "Security Sensor / Monitor",
+      "category": "security",
+      "purdue_level": null,
+      "vendors": [
+        "nozomi",
+        "claroty",
+        "dragos",
+        "forescout",
+        "armis",
+        "cisco",
+        "palo alto"
+      ],
+      "name_patterns": [
+        "sensor",
+        "probe",
+        "monitor",
+        "nozomi",
+        "claroty",
+        "dragos"
+      ],
+      "config_formats": [],
+      "vlan_indicators": [
+        "mgmt",
+        "monitor",
+        "security"
+      ],
+      "oui_vendors": [],
+      "subnet_patterns": []
+    },
+    "iot_device": {
+      "display_name": "IoT Device",
+      "category": "it_endpoint",
+      "purdue_level": null,
+      "vendors": [
+        "iot",
+        "nest",
+        "ring",
+        "amazon",
+        "google"
+      ],
+      "name_patterns": [
+        "iot",
+        "sensor",
+        "camera",
+        "thermostat"
+      ],
+      "config_formats": [],
+      "vlan_indicators": [
+        "iot",
+        "guest"
+      ],
+      "oui_vendors": [],
+      "subnet_patterns": []
+    }
+  },
+  "fallback_rules": {
+    "host_devices": {
+      "it_vendor_list": [
+        "cisco",
+        "vmware",
+        "hp",
+        "dell",
+        "intel",
+        "microsoft",
+        "lenovo"
+      ],
+      "ot_vlan_range": [100, 500],
+      "corporate_vlan_range": [1, 50],
+      "voice_vlan_keywords": ["voice", "voip", "phone"]
+    }
+  }
+}
+

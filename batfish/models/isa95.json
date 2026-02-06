@@ -1,0 +1,122 @@
+{
+  "name": "ISA-95 Model",
+  "version": "1.0",
+  "description": "ISA-95 (ANSI/ISA-95 / IEC 62264) is an international standard for enterprise-control system integration. It defines the interface between enterprise systems and control systems, focusing on information exchange and manufacturing operations management.",
+  "type": "ot_integration",
+  "reference": "ANSI/ISA-95 / IEC 62264",
+  "zones": {
+    "Level_0": {
+      "name": "Physical Processes",
+      "description": "The actual physical processes being controlled",
+      "typical_devices": ["Sensors", "Actuators", "Physical Equipment"],
+      "scope": "Real-time sensing and manipulation"
+    },
+    "Level_1": {
+      "name": "Sensing and Manipulation",
+      "description": "Sensing the physical process and manipulating the process",
+      "typical_devices": ["PLCs", "DCS", "Process Controllers"],
+      "scope": "Real-time control (milliseconds to seconds)"
+    },
+    "Level_2": {
+      "name": "Monitoring and Supervisory Control",
+      "description": "Monitoring, supervisory control and automated control of the production process",
+      "typical_devices": ["SCADA", "HMI", "Supervisory Controllers"],
+      "scope": "Batch control, continuous control (seconds to hours)"
+    },
+    "Level_3": {
+      "name": "Manufacturing Operations Management",
+      "description": "Work flow/recipe control to produce the desired end products. Maintains records and optimizes production",
+      "typical_devices": ["MES", "LIMS", "Batch Management", "Maintenance Systems"],
+      "scope": "Manufacturing operations (hours to days)",
+      "functions": [
+        "Production scheduling",
+        "Reliability assurance",
+        "Product inventory control",
+        "Product cost accounting",
+        "Performance analysis"
+      ]
+    },
+    "Level_4": {
+      "name": "Business Planning and Logistics",
+      "description": "Enterprise resource planning, supply chain management, and business-related activities",
+      "typical_devices": ["ERP", "SAP", "Oracle", "Supply Chain Systems"],
+      "scope": "Business planning (days to months)",
+      "functions": [
+        "Order processing",
+        "Material requirements planning",
+        "Financial management",
+        "Human resources",
+        "Supply chain optimization"
+      ]
+    }
+  },
+  "allowed_communications": [
+    {
+      "from": "Level_1",
+      "to": "Level_2",
+      "bidirectional": true,
+      "data_types": ["process_data", "alarm_events", "control_commands"],
+      "rationale": "Control systems exchange data with supervisory systems"
+    },
+    {
+      "from": "Level_2",
+      "to": "Level_3",
+      "bidirectional": true,
+      "data_types": ["production_data", "work_orders", "batch_records", "quality_data"],
+      "rationale": "Supervisory systems interface with MES for production management"
+    },
+    {
+      "from": "Level_3",
+      "to": "Level_4",
+      "bidirectional": true,
+      "data_types": ["production_schedules", "inventory_data", "order_information", "cost_data"],
+      "rationale": "MES integrates with ERP for business operations"
+    }
+  ],
+  "prohibited_communications": [
+    {
+      "from": "Level_4",
+      "to": "Level_1",
+      "rationale": "ERP systems should not directly control production equipment"
+    },
+    {
+      "from": "Level_4",
+      "to": "Level_0",
+      "rationale": "Business systems must never interact with physical processes"
+    }
+  ],
+  "required_enforcement_points": [
+    {
+      "between": ["Level_2", "Level_3"],
+      "type": "application_gateway",
+      "severity": "high",
+      "rationale": "Critical integration point - requires data transformation and security"
+    },
+    {
+      "between": ["Level_3", "Level_4"],
+      "type": "application_gateway",
+      "severity": "high",
+      "rationale": "Enterprise-control boundary - requires business logic separation"
+    }
+  ],
+  "data_flows": {
+    "Level_3_to_Level_4": [
+      "Production performance",
+      "Production capability",
+      "Production schedule",
+      "Product definition"
+    ],
+    "Level_4_to_Level_3": [
+      "Product orders",
+      "Production schedules",
+      "Material requirements"
+    ]
+  },
+  "compliance_standards": [
+    "ISA-95 Part 1: Models and Terminology",
+    "ISA-95 Part 2: Data Structures",
+    "ISA-95 Part 3: Activity Models",
+    "ISA-95 Part 4: Object Models"
+  ]
+}
+

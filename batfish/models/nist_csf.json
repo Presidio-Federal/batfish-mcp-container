@@ -1,0 +1,184 @@
+{
+  "name": "NIST Cybersecurity Framework for OT",
+  "version": "1.0",
+  "description": "NIST Cybersecurity Framework adapted for Operational Technology environments, focusing on identifying, protecting, detecting, responding to, and recovering from cyber threats to industrial control systems.",
+  "type": "security_framework",
+  "reference": "NIST CSF 2.0 + NIST SP 800-82",
+  "zones": {
+    "Safety_Critical": {
+      "name": "Safety Instrumented Systems (SIS)",
+      "description": "Emergency shutdown systems, safety PLCs, and systems that prevent hazardous conditions",
+      "typical_devices": ["Safety PLC", "Emergency Shutdown System", "Fire & Gas Detection"],
+      "security_requirements": {
+        "network_isolation": "mandatory",
+        "change_control": "safety_certified",
+        "availability": "99.999%",
+        "segmentation": "physically_separate"
+      }
+    },
+    "Process_Critical": {
+      "name": "Production Control Systems",
+      "description": "Systems that directly control production processes - downtime has immediate operational impact",
+      "typical_devices": ["DCS", "PLC", "SCADA", "Process Historian"],
+      "security_requirements": {
+        "network_isolation": "critical",
+        "monitoring": "continuous",
+        "availability": "99.9%",
+        "patching": "risk_based"
+      }
+    },
+    "Operations": {
+      "name": "Operations and Engineering",
+      "description": "Engineering workstations, HMIs, and systems used by operations personnel",
+      "typical_devices": ["Engineering Workstation", "HMI", "Asset Management"],
+      "security_requirements": {
+        "authentication": "mfa_required",
+        "endpoint_protection": "required",
+        "monitoring": "standard"
+      }
+    },
+    "Business": {
+      "name": "Business and Enterprise",
+      "description": "Corporate IT systems with access to production data for business decisions",
+      "typical_devices": ["ERP", "Business Intelligence", "Corporate Network"],
+      "security_requirements": {
+        "authentication": "sso",
+        "endpoint_protection": "standard",
+        "data_loss_prevention": "required"
+      }
+    },
+    "Remote_Access": {
+      "name": "Remote Access Zone",
+      "description": "Controlled access for vendors, remote engineers, and third-party support",
+      "typical_devices": ["Jump Server", "VPN Gateway", "Remote Access Server"],
+      "security_requirements": {
+        "authentication": "mfa_mandatory",
+        "session_recording": "required",
+        "time_restriction": "required",
+        "monitoring": "comprehensive"
+      }
+    }
+  },
+  "security_functions": {
+    "Identify": {
+      "description": "Develop organizational understanding to manage cybersecurity risk to systems, people, assets, data, and capabilities",
+      "requirements": [
+        "Asset inventory (all OT devices)",
+        "Network topology mapping",
+        "Data flow documentation",
+        "Risk assessment"
+      ]
+    },
+    "Protect": {
+      "description": "Develop and implement appropriate safeguards to ensure delivery of critical services",
+      "requirements": [
+        "Network segmentation enforced",
+        "Access control implemented",
+        "Data security at rest and in transit",
+        "Security awareness training"
+      ]
+    },
+    "Detect": {
+      "description": "Develop and implement appropriate activities to identify occurrence of cybersecurity events",
+      "requirements": [
+        "Continuous monitoring",
+        "Anomaly detection",
+        "IDS/IPS deployed at boundaries",
+        "Log aggregation and analysis"
+      ]
+    },
+    "Respond": {
+      "description": "Develop and implement appropriate activities to take action regarding detected cybersecurity incidents",
+      "requirements": [
+        "Incident response plan",
+        "Communication procedures",
+        "Containment strategies",
+        "Recovery procedures"
+      ]
+    },
+    "Recover": {
+      "description": "Develop and implement appropriate activities to maintain resilience and restore capabilities",
+      "requirements": [
+        "Backup and restore procedures",
+        "Business continuity plan",
+        "System recovery testing",
+        "Lessons learned documentation"
+      ]
+    }
+  },
+  "allowed_communications": [
+    {
+      "from": "Process_Critical",
+      "to": "Operations",
+      "bidirectional": true,
+      "protocols": ["opc-ua", "https"],
+      "security_controls": ["acl", "ids"],
+      "rationale": "Operations must monitor and control production"
+    },
+    {
+      "from": "Operations",
+      "to": "Business",
+      "bidirectional": true,
+      "protocols": ["https", "sql"],
+      "security_controls": ["firewall", "data_filter"],
+      "rationale": "Business systems need production data"
+    },
+    {
+      "from": "Remote_Access",
+      "to": "Operations",
+      "bidirectional": false,
+      "protocols": ["ssh", "rdp", "https"],
+      "security_controls": ["mfa", "session_recording", "ids"],
+      "rationale": "Controlled vendor/engineer access"
+    }
+  ],
+  "prohibited_communications": [
+    {
+      "from": "Business",
+      "to": "Process_Critical",
+      "rationale": "IT systems must not have direct access to production control"
+    },
+    {
+      "from": "Safety_Critical",
+      "to": "ANY",
+      "rationale": "Safety systems must be isolated - no network connectivity except certified safety networks"
+    },
+    {
+      "from": "Remote_Access",
+      "to": "Safety_Critical",
+      "rationale": "Remote access to safety systems is prohibited"
+    }
+  ],
+  "required_enforcement_points": [
+    {
+      "between": ["Safety_Critical", "Process_Critical"],
+      "type": "physical_isolation",
+      "severity": "critical",
+      "rationale": "Safety systems must be physically separate"
+    },
+    {
+      "between": ["Process_Critical", "Operations"],
+      "type": "industrial_firewall",
+      "severity": "critical",
+      "rationale": "Deep packet inspection for industrial protocols required"
+    },
+    {
+      "between": ["Operations", "Business"],
+      "type": "firewall_with_ids",
+      "severity": "high",
+      "rationale": "OT-IT boundary requires threat detection"
+    },
+    {
+      "between": ["Remote_Access", "ANY"],
+      "type": "jump_server_with_recording",
+      "severity": "critical",
+      "rationale": "All remote access must be logged and monitored"
+    }
+  ],
+  "compliance_standards": [
+    "NIST CSF 2.0",
+    "NIST SP 800-82 Rev 3 (ICS Security)",
+    "NIST SP 800-53 (Security Controls)"
+  ]
+}
+

@@ -1,0 +1,202 @@
+{
+  "name": "Purdue Model",
+  "version": "1.0",
+  "description": "The Purdue Enterprise Reference Architecture (PERA) is a widely-adopted framework for securing Industrial Control Systems (ICS) and Operational Technology (OT) networks. It defines hierarchical zones with strict communication boundaries to protect critical industrial processes from cyber threats.",
+  "type": "ot_security",
+  "reference": "ISA-95 / ISA-99 (IEC 62443)",
+  "zones": {
+    "Level_0": {
+      "name": "Physical Process",
+      "description": "Physical devices that directly interface with the industrial process: sensors, actuators, PLCs, RTUs, field instruments, drives, valves, pumps",
+      "typical_devices": ["PLC", "RTU", "Sensor", "Actuator", "Field Device", "I/O Module", "Drive", "Valve"],
+      "typical_vendors": ["rockwell", "siemens", "schneider", "abb", "emerson", "honeywell", "ge", "yokogawa"],
+      "typical_protocols": ["modbus", "profinet", "ethernetip", "devicenet", "foundation fieldbus", "hart"],
+      "security_requirements": {
+        "segmentation": "critical",
+        "authentication": "high",
+        "monitoring": "high",
+        "patching": "controlled"
+      }
+    },
+    "Level_1": {
+      "name": "Basic Control",
+      "description": "Control systems that manage the physical process: SCADA systems, DCS, historians, HMIs that directly control field devices",
+      "typical_devices": ["SCADA Server", "DCS Controller", "Historian", "Control HMI", "OPC Server"],
+      "typical_vendors": ["wonderware", "ge", "siemens", "honeywell", "emerson", "abb", "schneider"],
+      "typical_protocols": ["opc-ua", "opc-da", "modbus tcp", "dnp3", "bacnet"],
+      "security_requirements": {
+        "segmentation": "critical",
+        "authentication": "high",
+        "monitoring": "high",
+        "redundancy": "recommended"
+      }
+    },
+    "Level_2": {
+      "name": "Supervisory Control",
+      "description": "Supervisory and monitoring systems: engineering workstations, supervisory HMIs, batch management, recipe management",
+      "typical_devices": ["Engineering Workstation", "Supervisory HMI", "Batch Server", "Recipe Management", "MES Interface"],
+      "typical_vendors": ["windows", "vmware", "dell", "hp"],
+      "typical_protocols": ["opc-ua", "https", "sql", "smb"],
+      "security_requirements": {
+        "segmentation": "required",
+        "authentication": "high",
+        "monitoring": "medium",
+        "antivirus": "required"
+      }
+    },
+    "Level_3": {
+      "name": "Operations Management",
+      "description": "Manufacturing operations and production management: MES, LIMS, maintenance systems, production scheduling, asset management",
+      "typical_devices": ["MES Server", "LIMS", "CMMS", "Asset Management", "Production Scheduler", "Quality Management"],
+      "typical_vendors": ["windows", "linux", "vmware"],
+      "typical_protocols": ["https", "sql", "ldap", "smb", "nfs"],
+      "security_requirements": {
+        "segmentation": "required",
+        "authentication": "medium",
+        "monitoring": "medium",
+        "antivirus": "required"
+      }
+    },
+    "Level_4": {
+      "name": "Enterprise Network",
+      "description": "Corporate IT systems: ERP, email, file servers, Active Directory, business intelligence, corporate databases",
+      "typical_devices": ["ERP Server", "Exchange Server", "File Server", "Active Directory", "SQL Server", "SAP", "Oracle"],
+      "typical_vendors": ["windows", "linux", "cisco", "vmware", "dell", "hp"],
+      "typical_protocols": ["https", "smb", "ldap", "smtp", "sql"],
+      "security_requirements": {
+        "segmentation": "recommended",
+        "authentication": "standard",
+        "monitoring": "standard",
+        "antivirus": "required"
+      }
+    },
+    "DMZ": {
+      "name": "Demilitarized Zone",
+      "description": "Buffer zone between OT and IT networks: data historians accessible to IT, remote access gateways, patch management servers",
+      "typical_devices": ["Data Diode", "Historian Replica", "Jump Server", "Patch Server", "Remote Access Gateway"],
+      "typical_protocols": ["https", "ssh", "rdp"],
+      "security_requirements": {
+        "segmentation": "critical",
+        "authentication": "very high",
+        "monitoring": "very high",
+        "logging": "comprehensive"
+      }
+    }
+  },
+  "allowed_communications": [
+    {
+      "from": "Level_0",
+      "to": "Level_1",
+      "bidirectional": true,
+      "protocols": ["modbus", "profinet", "ethernetip", "opc-ua", "devicenet"],
+      "rationale": "Field devices must communicate with control systems",
+      "required": true
+    },
+    {
+      "from": "Level_1",
+      "to": "Level_2",
+      "bidirectional": true,
+      "protocols": ["opc-ua", "https", "modbus tcp"],
+      "rationale": "Control systems must send data to supervisory systems",
+      "required": true
+    },
+    {
+      "from": "Level_2",
+      "to": "Level_3",
+      "bidirectional": true,
+      "protocols": ["https", "sql", "opc-ua"],
+      "rationale": "Supervisory systems must interface with MES/operations",
+      "required": true
+    },
+    {
+      "from": "Level_3",
+      "to": "Level_4",
+      "bidirectional": true,
+      "protocols": ["https", "sql", "ldap", "smb"],
+      "rationale": "Operations systems must integrate with enterprise IT",
+      "required": true
+    },
+    {
+      "from": "Level_1",
+      "to": "DMZ",
+      "bidirectional": false,
+      "protocols": ["opc-ua", "https"],
+      "rationale": "Historians can replicate data to DMZ for IT access",
+      "required": false
+    },
+    {
+      "from": "Level_4",
+      "to": "DMZ",
+      "bidirectional": true,
+      "protocols": ["https", "ssh"],
+      "rationale": "IT can access OT data via DMZ",
+      "required": false
+    }
+  ],
+  "prohibited_communications": [
+    {
+      "from": "Level_0",
+      "to": "Level_3",
+      "rationale": "Field devices must not communicate directly with operations systems - violates zone isolation"
+    },
+    {
+      "from": "Level_0",
+      "to": "Level_4",
+      "rationale": "Field devices must NEVER communicate with enterprise IT - critical security violation"
+    },
+    {
+      "from": "Level_1",
+      "to": "Level_4",
+      "rationale": "Control systems must not communicate directly with enterprise IT - use DMZ"
+    },
+    {
+      "from": "Level_4",
+      "to": "Level_0",
+      "rationale": "Enterprise IT must NEVER have direct access to field devices"
+    },
+    {
+      "from": "Level_4",
+      "to": "Level_1",
+      "rationale": "Enterprise IT must not have direct access to control systems - use DMZ"
+    }
+  ],
+  "required_enforcement_points": [
+    {
+      "between": ["Level_0", "Level_1"],
+      "type": "firewall_or_acl",
+      "severity": "high",
+      "rationale": "Protect field devices from unauthorized control commands"
+    },
+    {
+      "between": ["Level_1", "Level_2"],
+      "type": "firewall_or_acl",
+      "severity": "high",
+      "rationale": "Protect control systems from supervisory layer threats"
+    },
+    {
+      "between": ["Level_2", "Level_3"],
+      "type": "firewall",
+      "severity": "critical",
+      "rationale": "Critical boundary between OT supervisory and operations - MUST have deep packet inspection"
+    },
+    {
+      "between": ["Level_3", "Level_4"],
+      "type": "firewall",
+      "severity": "critical",
+      "rationale": "Critical boundary between OT and IT - MUST have stateful inspection and IDS/IPS"
+    },
+    {
+      "between": ["DMZ", "Level_1"],
+      "type": "data_diode_or_firewall",
+      "severity": "critical",
+      "rationale": "One-way communication preferred to prevent IT-to-OT attacks"
+    }
+  ],
+  "compliance_standards": [
+    "NERC CIP (Energy)",
+    "FDA 21 CFR Part 11 (Pharma)",
+    "ISA/IEC 62443 (Industrial)",
+    "NIST SP 800-82 (ICS Security)"
+  ]
+}
+
