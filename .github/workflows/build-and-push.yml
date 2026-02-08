@@ -6,9 +6,19 @@ on:
       - main
     tags:
       - 'v*'
+    paths:
+      - 'batfish/**'
+      - 'middleware/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/build-and-push.yml'
   pull_request:
     branches:
       - main
+    paths:
+      - 'batfish/**'
+      - 'middleware/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/build-and-push.yml'
   workflow_dispatch:
 
 env:

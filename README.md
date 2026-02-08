@@ -1,406 +1,254 @@
 # Batfish MCP Container
 
-A FastMCP (Model Context Protocol) server that provides an interface to [Batfish](https://www.batfish.org/) network analysis capabilities. This container acts as a sidecar to the official Batfish all-in-one container, exposing Batfish's powerful network validation and analysis tools through a modern MCP interface.
+A Model Context Protocol (MCP) server that makes [Batfish](https://www.batfish.org/) network analysis accessible through AI agents like Claude.
 
-## What is This?
+---
 
-This project provides:
+## What is Batfish?
 
-1. **Batfish MCP Server**: A FastMCP server that wraps Batfish's network analysis capabilities
-2. **MCP Tools**: 50+ network analysis tools organized into categories:
-   - **Initialization**: Load network configs, AWS snapshots (supports incremental loading)
-   - **Management**: List/delete networks and snapshots
-   - **Network Analysis**: Topology, reachability, routing, ACLs, VLANs
-   - **AWS Analysis**: Security groups, routing, internet exposure, subnet segmentation
-   - **Compliance**: Device classification, zone compliance checking (ISA-95, Purdue, NIST CSF)
-   - **Testing**: Tagged tests, failure impact analysis
+**Batfish** is a powerful network validation and analysis framework that can model your entire network infrastructure—routers, switches, firewalls, cloud environments—and answer complex questions about network behavior without touching production systems.
 
-3. **Container Architecture**: Two-container design with Docker Compose orchestration
-   - **Batfish Container**: Official Batfish all-in-one container (network analysis engine)
-   - **Batfish MCP Container**: FastMCP server that communicates with Batfish
+### Why Batfish Matters
 
-## Architecture
+- **Pre-deployment Validation**: Test configuration changes before applying them to production
+- **Security Analysis**: Identify misconfigurations, ACL gaps, and security vulnerabilities
+- **Compliance Checking**: Verify network designs against industry standards (ISA-95, Purdue Model, NIST CSF)
+- **Impact Analysis**: Understand how changes will affect network behavior
+- **Multi-vendor Support**: Works with Cisco, Juniper, Arista, Palo Alto, AWS, and more
 
+### The Challenge
+
+While Batfish is incredibly powerful, it requires:
+- Deep understanding of network analysis concepts
+- Knowledge of Batfish's query language and API
+- Manual data formatting and loading
+- Complex query construction for analysis
+
+This complexity has limited Batfish adoption to network analysis experts.
+
+---
+
+## Why This MCP Container Changes Everything
+
+This container exposes **50+ Batfish tools through the Model Context Protocol (MCP)**, enabling AI agents like Claude to interact with Batfish through natural language.
+
+### What This Enables
+
+**Before (Traditional Batfish):**
+```python
+# Complex API calls, data formatting, query construction
+bf = Session(host="batfish")
+bf.init_snapshot("network", name="snapshot1", overwrite=True)
+bf.q.reachability().answer()
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                         Client (MCP)                         │
-│                    (Claude, AI Tools, etc.)                  │
-└────────────────────────────┬────────────────────────────────┘
-                             │ HTTP/MCP Protocol
-                             │ Port 3009
-┌────────────────────────────▼────────────────────────────────┐
-│                    Batfish MCP Container                     │
-│              (FastMCP Server + Tool Library)                 │
-└────────────────────────────┬────────────────────────────────┘
-                             │ Batfish API
-                             │ Port 9996
-┌────────────────────────────▼────────────────────────────────┐
-│                   Batfish All-in-One Container               │
-│              (Network Analysis Engine + Storage)             │
-└─────────────────────────────────────────────────────────────┘
+
+**After (With MCP + AI Agent):**
 ```
+"Analyze my network for devices that can reach the internet"
+"Check if my firewall rules allow SSH from the DMZ to production"
+"Load my AWS environment and find security group misconfigurations"
+```
+
+The AI agent:
+1. **Understands intent** - Translates natural language to appropriate Batfish operations
+2. **Handles data** - Formats network configs and loads them correctly
+3. **Performs analysis** - Executes the right sequence of Batfish tools
+4. **Explains results** - Interprets complex output in clear language
+
+This democratizes network analysis—anyone can now leverage Batfish's power through conversation.
+
+---
+
+## What's In This Repository
+
+This repository contains everything needed to deploy the Batfish MCP Container:
+
+- **`batfish/`** - MCP server implementation and 50+ Batfish tools
+- **`middleware/`** - Tool filtering and organization middleware
+- **`docker-compose.yml`** - Complete two-container stack (Batfish + MCP)
+- **`.github/workflows/`** - Automated CI/CD to GitHub Container Registry
+- **`docs/`** - Deployment guides, troubleshooting, and contribution guidelines
+
+The container architecture:
+```
+┌─────────────────────────────┐
+│   AI Agent (Claude, etc.)   │
+│                             │
+└──────────┬──────────────────┘
+           │ MCP Protocol
+┌──────────▼──────────────────┐
+│   Batfish MCP Container     │  ← This repo builds this
+│   (50+ Network Tools)       │
+└──────────┬──────────────────┘
+           │ Batfish API
+┌──────────▼──────────────────┐
+│  Batfish All-in-One         │
+│  (Analysis Engine)          │
+└─────────────────────────────┘
+```
+
+---
+
+## Table of Contents
+
+### 📦 [Deploying the Container](docs/DEPLOYMENT.md)
+Complete deployment guide covering:
+- Docker Compose setup
+- Cloud deployments (AWS ECS, Azure Container Instances, Google Cloud Run)
+- Production configuration with authentication
+- Docker Swarm orchestration
+- Backup and recovery strategies
+
+### 🛠️ [Using the Tools](docs/TOOLS.md)
+**Coming Soon** - Comprehensive guide to available Batfish tools:
+- Network analysis tools (topology, routing, reachability)
+- AWS security analysis tools
+- Compliance and classification tools
+- Snapshot management and initialization
+
+### 🔧 [Troubleshooting](docs/TROUBLESHOOTING.md)
+**Coming Soon** - Common issues and solutions:
+- Container startup problems
+- Authentication issues
+- Batfish connectivity
+- Performance tuning
+
+### 🤝 [Contributing](docs/CONTRIBUTING.md)
+Guidelines for contributing to this project
+
+---
 
 ## Quick Start
 
 ### Prerequisites
+- Docker and Docker Compose
+- 4GB+ RAM for Docker
 
-- Docker and Docker Compose installed
-- GitHub account (for pulling from GHCR)
-
-### Option 1: Using Docker Compose (Recommended)
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourusername/batfish-mcp-container.git
-   cd batfish-mcp-container
-   ```
-
-2. **Configure environment variables:**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your settings (optional, defaults work for local testing)
-   ```
-
-3. **Update docker-compose.yml with your GitHub username:**
-   ```bash
-   # Edit docker-compose.yml and replace 'yourusername' with your GitHub username
-   # Or set GITHUB_REPOSITORY environment variable
-   export GITHUB_REPOSITORY=yourusername/batfish-mcp-container
-   ```
-
-4. **Start the containers:**
-   ```bash
-   docker-compose up -d
-   ```
-
-5. **Verify the containers are running:**
-   ```bash
-   docker-compose ps
-   docker-compose logs batfish-mcp
-   ```
-
-6. **Test the MCP server:**
-   ```bash
-   curl -X POST http://localhost:3009/mcp \
-     -H "Content-Type: application/json" \
-     -H "Accept: application/json, text/event-stream" \
-     -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
-   ```
-
-### Option 2: Using Pre-built Image from GHCR
-
-Pull the latest image:
-```bash
-docker pull ghcr.io/yourusername/batfish-mcp-container:latest
-```
-
-Run with Docker Compose as shown above, or manually:
-```bash
-# Start Batfish
-docker run -d --name batfish \
-  -p 9996:9996 -p 9997:9997 \
-  -v batfish-data:/data \
-  batfish/allinone:latest
-
-# Start Batfish MCP
-docker run -d --name batfish-mcp \
-  -p 3009:3009 \
-  -e BATFISH_HOST=batfish \
-  -e DISABLE_JWT_AUTH=true \
-  --link batfish:batfish \
-  ghcr.io/yourusername/batfish-mcp-container:latest
-```
-
-### Option 3: Building Locally
-
-1. **Clone and build:**
-   ```bash
-   git clone https://github.com/yourusername/batfish-mcp-container.git
-   cd batfish-mcp-container
-   docker build -t batfish-mcp:latest -f batfish/dockerfile .
-   ```
-
-2. **Run with Docker Compose:**
-   ```bash
-   # Edit docker-compose.yml to use 'batfish-mcp:latest' instead of GHCR image
-   docker-compose up -d
-   ```
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `BATFISH_HOST` | `localhost` | Hostname of the Batfish service |
-| `BATFISH_PORT` | `9996` | Port of the Batfish service |
-| `DISABLE_JWT_AUTH` | `false` | Set to `true` to disable JWT authentication (dev mode) |
-| `AZURE_AD_TENANT_ID` | - | Azure AD tenant ID (required if auth enabled) |
-| `AZURE_AD_CLIENT_ID` | - | Azure AD client ID (optional for audience validation) |
-| `ENABLE_AUTH_LOGGING` | `false` | Enable detailed authentication logging |
-| `PORT` | `3009` | HTTP port for the MCP server |
-| `HOST` | `0.0.0.0` | Bind address for the server |
-| `TRANSPORT` | `http` | Transport type (http or stdio) |
-
-### Authentication Modes
-
-#### Development Mode (Default in Docker Compose)
-```bash
-DISABLE_JWT_AUTH=true
-```
-- No JWT token required
-- Useful for local testing and development
-- **Not recommended for production**
-
-#### Production Mode
-```bash
-DISABLE_JWT_AUTH=false
-AZURE_AD_TENANT_ID=your-tenant-id
-AZURE_AD_CLIENT_ID=your-client-id
-```
-- Requires valid JWT token in `Authorization: Bearer <token>` header
-- Validates tokens against Azure AD
-- Recommended for production deployments
-
-## Available MCP Tools
-
-The server exposes 50+ tools organized into categories. Here are some highlights:
-
-### Network Analysis
-- `network.summary` - Get comprehensive network overview
-- `network.segment` - Analyze network segmentation
-- `network.topology_connections` - View device connections
-- `network.traceroute` - Simulate network paths
-- `network.reachability_summary` - Test connectivity between zones
-
-### AWS Analysis
-- `aws.reachability` - Test AWS security group rules
-- `aws.internet_exposure` - Find internet-exposed resources
-- `aws.subnet_segmentation` - Analyze VPC segmentation
-- `aws.security_evaluation` - Comprehensive security assessment
-
-### Compliance
-- `compliance.check_zone_compliance` - Validate against ISA-95, Purdue, or NIST CSF
-- `compliance.auto_classify_zones` - Automatically classify network zones
-- `compliance.get_enforcement_points` - Identify security boundaries
-
-### Initialization
-- `initialize.snapshot` - Load network device configs
-- `initialize.aws_init_snapshot` - Load AWS configuration
-- `initialize.aws_add_data_chunk` - Incremental AWS data loading (for large environments)
-- `initialize.github_snapshot` - Load configs from GitHub repository
-
-For a complete list of tools, see [batfish/README.md](batfish/README.md).
-
-## Usage Examples
-
-### Example 1: Analyze Network Segmentation
+### 1. Build the Container
 
 ```bash
-# 1. Load network configuration
-curl -X POST http://localhost:3009/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 1,
-    "method": "tools/call",
-    "params": {
-      "name": "initialize.snapshot",
-      "arguments": {
-        "network": "my-network",
-        "snapshot": "baseline",
-        "configs": {
-          "router1.cfg": "...",
-          "switch1.cfg": "..."
-        }
-      }
-    }
-  }'
-
-# 2. Analyze segmentation
-curl -X POST http://localhost:3009/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 2,
-    "method": "tools/call",
-    "params": {
-      "name": "network.segment",
-      "arguments": {
-        "network": "my-network",
-        "snapshot": "baseline"
-      }
-    }
-  }'
+git clone https://github.com/yourusername/batfish-mcp-container.git
+cd batfish-mcp-container
+docker build -t batfish-mcp:latest -f batfish/dockerfile .
 ```
 
-### Example 2: AWS Security Analysis
+### 2. Start the Services
 
 ```bash
-# Load AWS snapshot and check for internet exposure
-curl -X POST http://localhost:3009/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 1,
-    "method": "tools/call",
-    "params": {
-      "name": "aws.internet_exposure",
-      "arguments": {
-        "network": "aws-prod",
-        "snapshot": "current"
-      }
-    }
-  }'
-```
-
-## GitHub Actions CI/CD
-
-This repository includes a GitHub Actions workflow that automatically:
-
-1. **Builds** the Docker image on every push to `main`
-2. **Pushes** the image to GitHub Container Registry (GHCR)
-3. **Tags** images based on:
-   - Branch name (e.g., `main`)
-   - Git tags (e.g., `v1.0.0`, `v1.0`, `v1`)
-   - Git SHA (e.g., `main-abc1234`)
-   - `latest` tag for the default branch
-
-### Setting Up GitHub Actions
-
-The workflow is already configured in `.github/workflows/build-and-push.yml`. To use it:
-
-1. **Enable GitHub Actions** in your repository settings
-2. **Make your package public** (or configure access):
-   - Go to your repository on GitHub
-   - Navigate to "Packages" after the first build
-   - Make the package public or configure access as needed
-
-3. **Push to trigger a build:**
-   ```bash
-   git add .
-   git commit -m "Initial commit"
-   git push origin main
-   ```
-
-4. **Create releases with tags:**
-   ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
-   ```
-
-The image will be available at:
-```
-ghcr.io/yourusername/batfish-mcp-container:latest
-ghcr.io/yourusername/batfish-mcp-container:v1.0.0
-ghcr.io/yourusername/batfish-mcp-container:main
-```
-
-## Deployment
-
-### Docker Compose (Production)
-
-For production deployments with authentication:
-
-1. **Create `.env` file:**
-   ```bash
-   DISABLE_JWT_AUTH=false
-   AZURE_AD_TENANT_ID=your-tenant-id
-   AZURE_AD_CLIENT_ID=your-client-id
-   ENABLE_AUTH_LOGGING=true
-   GITHUB_REPOSITORY=yourusername/batfish-mcp-container
-   ```
-
-2. **Deploy:**
-   ```bash
-   docker-compose up -d
-   ```
-
-3. **Monitor:**
-   ```bash
-   docker-compose logs -f batfish-mcp
-   ```
-
-### Kubernetes
-
-For Kubernetes deployments, see the example manifests in the `k8s/` directory (coming soon).
-
-## Troubleshooting
-
-### Container won't start
-
-Check logs:
-```bash
-docker-compose logs batfish-mcp
-```
-
-Common issues:
-- Batfish container not ready: Wait for healthcheck to pass
-- Port conflict: Change port in docker-compose.yml
-- Authentication error: Set `DISABLE_JWT_AUTH=true` for testing
-
-### Connection refused errors
-
-Make sure Batfish is running:
-```bash
-docker-compose ps batfish
-curl http://localhost:9996/
-```
-
-### Authentication issues
-
-Test without auth:
-```bash
-docker-compose down
-# Edit .env: DISABLE_JWT_AUTH=true
 docker-compose up -d
 ```
 
-## Development
+This starts:
+- **batfish** - The Batfish analysis engine
+- **batfish-mcp** - The MCP server with tools
 
-### Local Development Setup
+### 3. Configure Your AI Agent
 
-1. **Install Python dependencies:**
-   ```bash
-   cd batfish
-   pip install -r requirements.txt
-   ```
+Add to Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
 
-2. **Start Batfish container:**
-   ```bash
-   docker run -d --name batfish -p 9996:9996 -p 9997:9997 batfish/allinone:latest
-   ```
-
-3. **Run the server locally:**
-   ```bash
-   cd batfish
-   export BATFISH_HOST=localhost
-   export DISABLE_JWT_AUTH=true
-   python -m server
-   ```
-
-### Building the Container
-
-```bash
-docker build -t batfish-mcp:dev -f batfish/dockerfile .
+```json
+{
+  "mcpServers": {
+    "batfish": {
+      "url": "http://localhost:3009/mcp"
+    }
+  }
+}
 ```
 
-## Contributing
+Restart Claude Desktop.
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### 4. Start Analyzing
 
-## License
+```
+"Show me what networks are currently loaded in Batfish"
+"Load my router configs and analyze network segmentation"
+"Check my AWS environment for security group misconfigurations"
+```
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+For detailed deployment instructions, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-## Acknowledgments
+---
 
-- [Batfish](https://www.batfish.org/) - Network validation and analysis framework
-- [FastMCP](https://github.com/jlowin/fastmcp) - Model Context Protocol server framework
+## Available Tools
+
+The MCP server exposes 50+ tools organized by category:
+
+| Category | Tools | Purpose |
+|----------|-------|---------|
+| **Initialize** | 10+ tools | Load network configs, AWS snapshots, GitHub repos |
+| **Network** | 20+ tools | Topology, routing, reachability, VLANs, ACLs |
+| **AWS** | 10+ tools | Security groups, internet exposure, routing |
+| **Compliance** | 5+ tools | Device classification, zone compliance (ISA-95, Purdue, NIST) |
+| **Management** | 5+ tools | List/delete networks and snapshots |
+
+See [batfish/README.md](batfish/README.md) for complete tool documentation.
+
+---
+
+## Architecture
+
+### Two-Container Design
+
+1. **Batfish Container** (Official batfish/allinone)
+   - Network analysis engine
+   - Configuration parser
+   - Data storage
+
+2. **Batfish MCP Container** (This repository)
+   - FastMCP server
+   - 50+ Batfish tool wrappers
+   - Authentication (optional Azure AD)
+   - Tool filtering and organization
+
+### Why MCP?
+
+The [Model Context Protocol](https://modelcontextprotocol.io/) is an open standard for connecting AI agents to external tools and data sources. By implementing Batfish as MCP tools, any MCP-compatible AI agent can use Batfish capabilities.
+
+---
+
+## GitHub Actions CI/CD
+
+This repository includes automated builds:
+- Builds on every push to `main` (when container code changes)
+- Publishes to GitHub Container Registry (GHCR)
+- Multi-platform support (linux/amd64, linux/arm64)
+- Semantic versioning with git tags
+
+Images available at:
+```
+ghcr.io/yourusername/batfish-mcp-container:latest
+ghcr.io/yourusername/batfish-mcp-container:v1.0.0
+```
+
+---
+
+## Documentation
+
+- **[Quick Start](docs/QUICKSTART.md)** - Get running in 5 minutes
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment
+- **[Contributing Guide](docs/CONTRIBUTING.md)** - Development setup
+- **[Tool Reference](batfish/README.md)** - Complete tool documentation
+
+---
 
 ## Support
 
-For issues and questions:
-- GitHub Issues: [Create an issue](https://github.com/yourusername/batfish-mcp-container/issues)
-- Batfish Documentation: [www.batfish.org](https://www.batfish.org/)
-- FastMCP Documentation: [FastMCP Docs](https://github.com/jlowin/fastmcp)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/batfish-mcp-container/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/batfish-mcp-container/discussions)
+- **Batfish Docs**: [www.batfish.org](https://www.batfish.org/)
+- **MCP Spec**: [modelcontextprotocol.io](https://modelcontextprotocol.io/)
+
+---
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+---
+
+## Acknowledgments
+
+- [Batfish](https://www.batfish.org/) - The powerful network analysis framework this builds upon
+- [FastMCP](https://github.com/jlowin/fastmcp) - The Python MCP server framework
+- [Anthropic](https://www.anthropic.com/) - For the Model Context Protocol specification
