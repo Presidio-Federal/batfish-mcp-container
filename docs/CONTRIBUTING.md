@@ -15,7 +15,7 @@ Thank you for your interest in contributing! This document provides guidelines a
 
 1. **Fork and clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/batfish-mcp-container.git
+   git clone https://github.com/presidio-federal/batfish-mcp-container.git
    cd batfish-mcp-container
    ```
 
@@ -323,8 +323,8 @@ Releases are automated via GitHub Actions:
 
 ## Questions?
 
-- Open a [Discussion](https://github.com/yourusername/batfish-mcp-container/discussions)
-- Check existing [Issues](https://github.com/yourusername/batfish-mcp-container/issues)
+- Open a [Discussion](https://github.com/presidio-federal/batfish-mcp-container/discussions)
+- Check existing [Issues](https://github.com/presidio-federal/batfish-mcp-container/issues)
 - Review the [Documentation](README.md)
 
 Thank you for contributing! 🎉

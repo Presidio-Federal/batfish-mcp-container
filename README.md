@@ -91,29 +91,35 @@ The container architecture:
 
 ## Table of Contents
 
-### 📦 [Deploying the Container](docs/DEPLOYMENT.md)
-Complete deployment guide covering:
+### Deploying the Container
+[Complete deployment guide](docs/DEPLOYMENT.md) covering:
 - Docker Compose setup
 - Cloud deployments (AWS ECS, Azure Container Instances, Google Cloud Run)
 - Production configuration with authentication
 - Docker Swarm orchestration
 - Backup and recovery strategies
 
-### 🛠️ [Using the Tools](docs/TOOLS.md)
-**Coming Soon** - Comprehensive guide to available Batfish tools:
+### Using the Tools
+[Tool usage guide](docs/TOOLS.md) - Coming Soon
+
+Comprehensive guide to available Batfish tools:
 - Network analysis tools (topology, routing, reachability)
 - AWS security analysis tools
 - Compliance and classification tools
 - Snapshot management and initialization
 
-### 🔧 [Troubleshooting](docs/TROUBLESHOOTING.md)
-**Coming Soon** - Common issues and solutions:
+### Troubleshooting
+[Troubleshooting guide](docs/TROUBLESHOOTING.md) - Coming Soon
+
+Common issues and solutions:
 - Container startup problems
 - Authentication issues
 - Batfish connectivity
 - Performance tuning
 
-### 🤝 [Contributing](docs/CONTRIBUTING.md)
+### Contributing
+[Contributing guidelines](docs/CONTRIBUTING.md)
+
 Guidelines for contributing to this project
 
 ---
@@ -127,7 +133,7 @@ Guidelines for contributing to this project
 ### 1. Build the Container
 
 ```bash
-git clone https://github.com/yourusername/batfish-mcp-container.git
+git clone https://github.com/presidio-federal/batfish-mcp-container.git
 cd batfish-mcp-container
 docker build -t batfish-mcp:latest -f batfish/dockerfile .
 ```
@@ -217,8 +223,8 @@ This repository includes automated builds:
 
 Images available at:
 ```
-ghcr.io/yourusername/batfish-mcp-container:latest
-ghcr.io/yourusername/batfish-mcp-container:v1.0.0
+ghcr.io/presidio-federal/batfish-mcp-container:latest
+ghcr.io/presidio-federal/batfish-mcp-container:v1.0.0
 ```
 
 ---
@@ -234,10 +240,10 @@ ghcr.io/yourusername/batfish-mcp-container:v1.0.0
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/batfish-mcp-container/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/batfish-mcp-container/discussions)
-- **Batfish Docs**: [www.batfish.org](https://www.batfish.org/)
-- **MCP Spec**: [modelcontextprotocol.io](https://modelcontextprotocol.io/)
+- Issues: [GitHub Issues](https://github.com/presidio-federal/batfish-mcp-container/issues)
+- Discussions: [GitHub Discussions](https://github.com/presidio-federal/batfish-mcp-container/discussions)
+- Batfish Docs: [www.batfish.org](https://www.batfish.org/)
+- MCP Spec: [modelcontextprotocol.io](https://modelcontextprotocol.io/)
 
 ---
 

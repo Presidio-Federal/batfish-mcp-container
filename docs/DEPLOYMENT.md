@@ -17,14 +17,14 @@ This guide covers various deployment scenarios for the Batfish MCP Container.
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/batfish-mcp-container.git
+git clone https://github.com/presidio-federal/batfish-mcp-container.git
 cd batfish-mcp-container
 
 # Copy environment file
 cp .env.example .env
 
 # Update .env with your GitHub username
-# GITHUB_REPOSITORY=yourusername/batfish-mcp-container
+# GITHUB_REPOSITORY=presidio-federal/batfish-mcp-container
 
 # Start services
 docker-compose up -d
@@ -98,7 +98,7 @@ DISABLE_JWT_AUTH=false
 AZURE_AD_TENANT_ID=your-azure-tenant-id
 AZURE_AD_CLIENT_ID=your-azure-client-id
 ENABLE_AUTH_LOGGING=true
-GITHUB_REPOSITORY=yourusername/batfish-mcp-container
+GITHUB_REPOSITORY=presidio-federal/batfish-mcp-container
 ```
 
 2. **Deploy:**
@@ -151,7 +151,7 @@ services:
       retries: 5
 
   batfish-mcp:
-    image: ghcr.io/yourusername/batfish-mcp-container:latest
+    image: ghcr.io/presidio-federal/batfish-mcp-container:latest
     ports:
       - "3009:3009"
     environment:
@@ -222,7 +222,7 @@ az group create --name batfish-rg --location eastus
 az container create \
   --resource-group batfish-rg \
   --name batfish-containers \
-  --image ghcr.io/yourusername/batfish-mcp-container:latest \
+  --image ghcr.io/presidio-federal/batfish-mcp-container:latest \
   --ports 3009 9996 9997 \
   --dns-name-label batfish-mcp-demo \
   --environment-variables \
@@ -237,7 +237,7 @@ az container create \
 # Then deploy MCP service
 
 gcloud run deploy batfish-mcp \
-  --image ghcr.io/yourusername/batfish-mcp-container:latest \
+  --image ghcr.io/presidio-federal/batfish-mcp-container:latest \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
@@ -466,7 +466,7 @@ docker-compose logs -f batfish-mcp
 docker-compose down
 
 # Use specific version
-docker-compose up -d ghcr.io/yourusername/batfish-mcp-container:v1.0.0
+docker-compose up -d ghcr.io/presidio-federal/batfish-mcp-container:v1.0.0
 
 # Or restore from backup
 ./restore.sh backups/20260206_120000/batfish-data.tar.gz

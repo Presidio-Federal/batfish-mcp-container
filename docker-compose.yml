@@ -21,7 +21,7 @@ services:
 
   batfish-mcp:
     # For local builds, use: batfish-mcp:latest
-    # For GHCR, use: ghcr.io/${GITHUB_REPOSITORY:-yourusername/batfish-mcp-container}:latest
+    # For GHCR, use: ghcr.io/${GITHUB_REPOSITORY:-presidio-federal/batfish-mcp-container}:latest
     image: batfish-mcp:latest
     container_name: batfish-mcp
     ports:

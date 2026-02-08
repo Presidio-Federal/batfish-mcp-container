@@ -36,4 +36,4 @@ For immediate help:
 - Check logs: `docker-compose logs batfish-mcp`
 - Check Batfish health: `curl http://localhost:9996/`
 - Enable debug logging: `ENABLE_AUTH_LOGGING=true`
-- [Open an issue](https://github.com/yourusername/batfish-mcp-container/issues)
+- [Open an issue](https://github.com/presidio-federal/batfish-mcp-container/issues)

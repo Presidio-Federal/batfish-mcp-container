@@ -11,7 +11,7 @@ This guide will help you get up and running with Batfish MCP Container in 5 minu
 ## Step 1: Get the Code
 
 ```bash
-git clone https://github.com/yourusername/batfish-mcp-container.git
+git clone https://github.com/presidio-federal/batfish-mcp-container.git
 cd batfish-mcp-container
 ```
 
@@ -174,6 +174,6 @@ docker-compose logs batfish
 
 ## Getting Help
 
-- [Open an issue](https://github.com/yourusername/batfish-mcp-container/issues)
-- [Check discussions](https://github.com/yourusername/batfish-mcp-container/discussions)
+- [Open an issue](https://github.com/presidio-federal/batfish-mcp-container/issues)
+- [Check discussions](https://github.com/presidio-federal/batfish-mcp-container/discussions)
 - [Batfish documentation](https://www.batfish.org/)
