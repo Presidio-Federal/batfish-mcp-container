@@ -99,6 +99,14 @@ The container architecture:
 - Docker Swarm orchestration
 - Backup and recovery strategies
 
+### Loading Your Data
+[Data loading guide](docs/LOADING_DATA.md)
+
+Learn the three methods for loading network configurations into Batfish:
+- Incremental loading with staging (best for large networks)
+- Base64 ZIP upload (simple one-shot method)
+- GitHub integration (most token-efficient method)
+
 ### Using the Tools
 [Tool usage guide](docs/TOOLS.md) - Coming Soon
 
