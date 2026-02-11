@@ -123,6 +123,11 @@ try:
         from .tools.batfish_get_inventory_tool import GetInventoryInput, ResourceType
         from .tools.batfish_run_tagged_tests_tool import RunTaggedTestsInput
         from .tools.batfish_simulate_traffic_tool import SimulateTrafficInput
+        from .tools.batfish_run_github_tests_tool import (
+            batfish_github_test_tool,
+            batfish_test_catalog_tool,
+            batfish_test_describe_tool,
+        )
 
         logger.info("Successfully imported tools with relative imports")
     except ImportError as e:
@@ -204,6 +209,11 @@ except ImportError:
     from tools.batfish_get_inventory_tool import GetInventoryInput, ResourceType
     from tools.batfish_run_tagged_tests_tool import RunTaggedTestsInput
     from tools.batfish_simulate_traffic_tool import SimulateTrafficInput
+    from tools.batfish_run_github_tests_tool import (
+        batfish_github_test_tool,
+        batfish_test_catalog_tool,
+        batfish_test_describe_tool,
+    )
 
     logger.info("Successfully imported tools with absolute imports")
 
@@ -4074,6 +4084,136 @@ def create_server() -> FastMCP:
                 f"Error in compliance_update_classification_rules: {error_msg}"
             )
             return {"ok": False, "error": error_msg}
+
+    @tool(
+        mcp,
+        toolset="testing",
+        name="batfish_list_github_tests",
+        description=(
+            "Testing: List Batfish Tests from GitHub - Browse available Batfish tests from the central "
+            "ai-studio-network-tests repository. Tests can be filtered by framework (purdue, pci-dss, stig), "
+            "test type (batfish, predictive_validation), or tags. Returns portable pytest files that can be "
+            "downloaded and executed by anyone with Batfish."
+        ),
+    )
+    async def batfish_list_github_tests(
+        framework: str | None = None,
+        test_type: str | None = None,
+        tags: list[str] | None = None,
+    ) -> dict:
+        """
+        List available Batfish tests from GitHub catalog.
+
+        Args:
+            framework: Filter by framework (e.g., 'purdue', 'pci-dss', 'stig')
+            test_type: Filter by test type ('batfish' or 'predictive_validation')
+            tags: Filter by tags (e.g., ['purdue', 'segmentation'])
+
+        Returns:
+            List of available Batfish tests with metadata
+        """
+        try:
+            logger.info("Fetching Batfish tests from GitHub catalog...")
+
+            input_data = {
+                "framework": framework,
+                "test_type": test_type,
+                "tags": tags,
+            }
+
+            result = batfish_test_catalog_tool.execute(input_data)
+            return result
+
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"Error in batfish_list_github_tests: {error_msg}")
+            return {"ok": False, "error": error_msg, "count": 0, "tests": []}
+
+    @tool(
+        mcp,
+        toolset="testing",
+        name="batfish_describe_github_test",
+        description=(
+            "Testing: Describe Batfish Test - Get detailed information about a specific Batfish test from GitHub. "
+            "Returns complete test metadata including required parameters, optional parameters, parameter descriptions, "
+            "usage examples, and NIST control mappings. Use this before running a test to understand what inputs are needed."
+        ),
+    )
+    async def batfish_describe_github_test(test_id: str) -> dict:
+        """
+        Get detailed information about a specific Batfish test.
+
+        Args:
+            test_id: Test identifier from catalog (e.g., 'batfish-001-bidirectional-reachability')
+
+        Returns:
+            Detailed test information including parameter schema and usage examples
+        """
+        try:
+            logger.info(f"Describing test: {test_id}")
+
+            input_data = {"test_id": test_id}
+
+            result = batfish_test_describe_tool.execute(input_data)
+            return result
+
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"Error in batfish_describe_github_test: {error_msg}")
+            return {"ok": False, "error": error_msg}
+
+    @tool(
+        mcp,
+        toolset="testing",
+        name="batfish_run_github_test",
+        description=(
+            "Testing: Run Batfish Test from GitHub - Download and execute a Batfish test from the central "
+            "ai-studio-network-tests repository. Provide the test path, network name, snapshot name, and any "
+            "required test parameters (e.g., IP addresses, device names). The test is downloaded from GitHub "
+            "and executed as a standard pytest against your Batfish instance."
+        ),
+    )
+    async def batfish_run_github_test(
+        test_path: str,
+        network: str,
+        snapshot: str,
+        test_params: dict | None = None,
+        host: str = "localhost",
+    ) -> dict:
+        """
+        Download and execute a Batfish test from GitHub.
+
+        Args:
+            test_path: Path to test in GitHub repo (e.g., 'batfish/purdue/test_level3_to_level4.py')
+            network: Batfish network name
+            snapshot: Batfish snapshot name
+            test_params: Test-specific parameters (e.g., {'level3_ip': '10.42.300.10', 'level4_ip': '10.10.10.50'})
+            host: Batfish host (default: localhost)
+
+        Returns:
+            Test execution results with pass/fail status
+        """
+        try:
+            logger.info(f"Running GitHub test: {test_path}")
+
+            input_data = {
+                "test_path": test_path,
+                "network": network,
+                "snapshot": snapshot,
+                "test_params": test_params,
+                "host": host,
+            }
+
+            result = batfish_github_test_tool.execute(input_data)
+            return result
+
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"Error in batfish_run_github_test: {error_msg}")
+            return {
+                "ok": False,
+                "error": error_msg
+            }
 
     return mcp
 
